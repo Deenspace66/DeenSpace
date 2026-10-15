@@ -1,0 +1,18 @@
+
+*{margin:0;padding:0;box-sizing:border-box;font-family: 'Segoe UI', sans-serif;}
+body{background:linear-gradient(135deg,#0f5132,#1a7a4a);min-height:100vh;padding:20px;color:#333;}
+.container{max-width:500px;margin:0 auto;}
+header{text-align:center;color:white;margin:30px 0;}
+header h1{font-size:42px;margin-bottom:5px;}
+header p{font-size:18px;opacity:0.9;}
+.card{background:white;border-radius:16px;padding:25px;box-shadow:0 10px 30px rgba(0,0,0,0.2);margin-bottom:20px;}
+.tabs{display:flex;gap:10px;margin-bottom:20px;}
+.tabs button{flex:1;padding:12px;border:none;border-radius:8px;cursor:pointer;background:#e9ecef;font-weight:bold;}
+.tabs button.active{background:#0f5132;color:white;}
+form input, form select{width:100%;padding:12px;margin:8px 0;border:1px solid #ddd;border-radius:8px;font-size:16px;}
+form button{width:100%;padding:13px;background:#0f5132;color:white;border:none;border-radius:8px;font-size:16px;font-weight:bold;cursor:pointer;margin-top:10px;}
+form button:hover{background:#144d2f;}
+.course-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:15px;}
+.course{background:#f0f8f0;padding:15px;border-radius:10px;text-align:center;font-weight:600;border:1px solid #c8e6c9;}
+#loginMessage,#registerMessage{text-align:center;margin-top:10px;font-size:14px;}
+.error{color:red;}.success{color:green;}
