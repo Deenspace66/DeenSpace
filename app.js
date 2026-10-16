@@ -1,4 +1,3 @@
-
 let currentUser=null, currentProfile=null, isAdmin=false, jitsiAPI=null;
 
 async function init(){
