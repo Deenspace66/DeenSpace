@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>🔴 Live Class - DeenSpace</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+body{font-family:Inter,sans-serif}
+.amiri{font-family:Amiri,serif}
+.live-pulse{animation:pulse 1.5s infinite}
+@keyframes pulse{0%{box-shadow:0 0 0 0 rgba(239,68,68,0.7)}70%{box-shadow:0 0 0 10px rgba(239,68,68,0)}100%{box-shadow:0 0 0 0 rgba(239,68,68,0)}}
+</style>
+</head>
+<body class="bg-[#0a2e22] text-white min-h-screen flex flex-col">
+
+<!-- TOP BAR -->
+<header class="bg-[#0f3d2e] border-b border-white/10 p-3 flex items-center justify-between sticky top-0 z-50">
+  <div class="flex items-center gap-3">
+    <a href="index.html" class="text-2xl">🌙</a>
+    <div>
+      <h1 class="font-bold text-sm md:text-base flex items-center gap-2">
+        <span id="liveDot" class="w-3 h-3 bg-gray-500 rounded-full"></span>
+        <span id="classTitle">Hifz-e-Quran with Qari Saab</span>
+      </h1>
+      <p class="text-[10px] text-white/60" id="liveStatus">Offline • Next: 5:00 PM Gujranwala Time</p>
+    </div>
+  </div>
+  <div class="flex items-center gap-2">
+    <span id="studentCount" class="text-xs bg-white/10 px-3 py-1 rounded-full">👥 1 online</span>
+    <button onclick="toggleFullscreen()" class="bg-white/10 p-2 rounded-lg">⛶</button>
+  </div>
+</header>
+
+<!-- MAIN FULLSCREEN AREA -->
+<main class="flex-1 flex flex-col lg:flex-row">
+
+  <!-- VIDEO AREA -->
+  <div class="flex-1 bg-black relative flex items-center justify-center min-h-[60vh] lg:min-h-[85vh]" id="videoContainer">
+    
+    <!-- OFFLINE STATE -->
+    <div id="offlineState" class="text-center p-8 max-w-xl">
+      <div class="text-6xl mb-4">🕌</div>
+      <h2 class="text-3xl font-bold mb-2">Live Class is Offline</h2>
+      <p class="text-white/60 mb-6 amiri text-xl">بِسْمِ اللهِ الرَّحْمٰنِ الرَّحِيْمِ</p>
+      <div class="bg-white/5 border border-white/10 rounded-2xl p-6 mb-6">
+        <p class="text-sm text-white/50">Next Class</p>
+        <p class="text-2xl font-bold" id="nextTime">Today at 5:00 PM</p>
+        <p class="text-sm text-white/60">Gujranwala, Pakistan Time</p>
+        <div id="countdown" class="mt-4 text-xl font-mono text-green-400">--:--:--</div>
+      </div>
+      <p class="text-xs text-white/40">Qari Saab will start the class. You will join automatically in full screen.</p>
+    </div>
+
+    <!-- LIVE STATE (hidden) -->
+    <div id="liveState" class="hidden w-full h-full">
+      <iframe id="meetFrame" class="w-full h-full min-h-[60vh] lg:min-h-[85vh] border-0" allow="camera; microphone; fullscreen; display-capture"></iframe>
+    </div>
+
+    <!-- SABAQ OVERLAY -->
+    <div class="absolute bottom-4 left-4 right-4 lg:left-4 lg:right-auto bg-[#0f3d2e]/90 backdrop-blur border border-white/10 rounded-xl p-3 flex items-center gap-3 max-w-md">
+      <div class="w-10 h-10 bg-green-600 rounded-lg flex items-center justify-center">📖</div>
+      <div>
+        <p class="text-[10px] text-white/50 uppercase">Today's Sabaq</p>
+        <p class="text-sm font-semibold" id="sabaqText">Surah Baqarah - Ayat 10-20</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- SIDE PANEL -->
+  <aside class="w-full lg:w-[340px] bg-[#0f3d2e] border-l border-white/10 flex flex-col max-h-[40vh] lg:max-h-[85vh]">
+    
+    <!-- Admin Panel -->
+    <div id="adminPanel" class="p-4 border-b border-white/10 bg-yellow-500/10 hidden">
+      <p class="text-xs font-bold text-yellow-400 mb-2">👑 ADMIN CONTROLS</p>
+      <input id="meetLinkInput" placeholder="Paste Google Meet / Zoom link" class="w-full bg-black/50 border border-white/10 rounded-lg px-3 py-2 text-sm mb-2 text-white">
+      <div class="flex gap-2">
+        <button onclick="goLive()" class="flex-1 bg-red-600 hover:bg-red-700 text-white text-sm font-bold py-2 rounded-lg">🔴 Go Live</button>
+        <button onclick="endLive()" class="flex-1 bg-white/10 hover:bg-white/20 text-sm font-bold py-2 rounded-lg">End</button>
+      </div>
+      <p class="text-[10px] text-white/40 mt-2">Students will see full screen automatically</p>
+    </div>
+
+    <!-- Chat -->
+    <div class="flex-1 flex flex-col">
+      <div class="p-3 border-b border-white/10 flex justify-between items-center">
+        <h3 class="font-bold text-sm">💬 Class Adab Chat</h3>
+        <span class="text-[10px] bg-green-600 px-2 py-1 rounded-full">Live</span>
+      </div>
+      <div id="chatBox" class="flex-1 overflow-y-auto p-3 space-y-2 text-sm">
+        <div class="bg-white/5 rounded-lg p-2"><span class="text-green-400 font-bold text-xs">Qari Saab:</span> Assalamu Alaikum! Class will start at 5 PM inshaAllah</div>
+        <div class="bg-white/5 rounded-lg p-2"><span class="font-bold text-xs">Tamoor:</span> Wa Alaikum Assalam Qari Saab 🌙</div>
+      </div>
+      <div class="p-3 border-t border-white/10 flex gap-2">
+        <input id="chatInput" placeholder="Ask about Sabaq..." class="flex-1 bg-black/50 border border-white/10 rounded-lg px-3 py-2 text-sm">
+        <button onclick="sendChat()" class="bg-green-600 px-4 py-2 rounded-lg text-sm font-bold">Send</button>
+      </div>
+    </div>
+
+    <!-- Bottom Tasbeeh -->
+    <div class="p-3 border-t border-white/10 flex justify-between items-center text-xs text-white/50">
+      <span>📿 SubhanAllah</span>
+      <span id="tasbeehCount" class="bg-white/10 px-3 py-1 rounded-full cursor-pointer" onclick="this.innerText='📿 '+(parseInt(this.innerText.match(/\d+/)||0)+1)">📿 33</span>
+    </div>
+  </aside>
+</main>
+
+<!-- JOIN BAR (Mobile) -->
+<div id="joinBar" class="lg:hidden fixed bottom-0 left-0 right-0 bg-[#0f3d2e] border-t border-white/10 p-4">
+  <button id="joinBtn" onclick="joinClass()" class="w-full bg-green-600 hover:bg-green-700 text-white font-bold py-3 rounded-xl">🚀 Join Live Class Now →</button>
+</div>
+
+<script>
+// Simple logic - uses localStorage for demo, you can connect to Supabase live_classes table later
+const isAdmin = localStorage.getItem('role') === 'admin' || true; // Show for demo - in real app check supabase profile
+if(isAdmin) document.getElementById('adminPanel').classList.remove('hidden');
+
+let isLive = localStorage.getItem('deenspace_is_live') === 'true';
+let meetLink = localStorage.getItem('deenspace_meet_link') || '';
+
+function render(){
+  const offline = document.getElementById('offlineState');
+  const live = document.getElementById('liveState');
+  const dot = document.getElementById('liveDot');
+  const status = document.getElementById('liveStatus');
+  const frame = document.getElementById('meetFrame');
+  const joinBtn = document.getElementById('joinBtn');
+  
+  if(isLive && meetLink){
+    offline.classList.add('hidden');
+    live.classList.remove('hidden');
+    frame.src = meetLink;
+    dot.className = 'w-3 h-3 bg-red-500 rounded-full live-pulse';
+    status.innerHTML = '<span class="text-red-400">🔴 LIVE NOW</span> • ' + document.getElementById('classTitle').innerText;
+    if(joinBtn) joinBtn.innerText = '🔴 Watching Live - Full Screen';
+    document.getElementById('meetLinkInput').value = meetLink;
+  } else {
+    offline.classList.remove('hidden');
+    live.classList.add('hidden');
+    dot.className = 'w-3 h-3 bg-gray-500 rounded-full';
+    status.innerText = 'Offline • Next: 5:00 PM Gujranwala Time';
+    if(joinBtn) joinBtn.innerText = '🚀 Join Live Class Now →';
+  }
+}
+
+function goLive(){
+  const link = document.getElementById('meetLinkInput').value.trim();
+  if(!link) return alert('Paste Google Meet link first! e.g. https://meet.google.com/abc-defg-hij');
+  meetLink = link;
+  isLive = true;
+  localStorage.setItem('deenspace_meet_link', meetLink);
+  localStorage.setItem('deenspace_is_live', 'true');
+  render();
+  alert('🔴 LIVE! Students can now join full screen!');
+  // TODO: Update supabase: supabase.from('live_classes').update({is_live:true, meet_link:link}).eq('id', ...)
+}
+
+function endLive(){
+  isLive = false;
+  localStorage.setItem('deenspace_is_live', 'false');
+  document.getElementById('meetFrame').src = '';
+  render();
+}
+
+function joinClass(){
+  if(!isLive) return alert('Class is offline. Qari Saab will go live at 5 PM inshaAllah');
+  document.getElementById('videoContainer').requestFullscreen?.();
+  window.scrollTo(0,0);
+}
+
+function toggleFullscreen(){
+  if(!document.fullscreenElement) document.documentElement.requestFullscreen();
+  else document.exitFullscreen();
+}
+
+function sendChat(){
+  const input = document.getElementById('chatInput');
+  if(!input.value.trim()) return;
+  const box = document.getElementById('chatBox');
+  box.innerHTML += `<div class="bg-green-600/20 rounded-lg p-2"><span class="font-bold text-xs">You:</span> ${input.value}</div>`;
+  input.value = '';
+  box.scrollTop = box.scrollHeight;
+}
+
+// Countdown to 5 PM
+function updateCountdown(){
+  const now = new Date();
+  const target = new Date();
+  target.setHours(17,0,0,0);
+  if(now > target) target.setDate(target.getDate()+1);
+  const diff = target - now;
+  const h = Math.floor(diff/3600000);
+  const m = Math.floor((diff%3600000)/60000);
+  const s = Math.floor((diff%60000)/1000);
+  const el = document.getElementById('countdown');
+  if(el) el.innerText = `${h}h ${m}m ${s}s to next class`;
+}
+setInterval(updateCountdown,1000);
+updateCountdown();
+render();
+</script>
+</body>
+</html>
