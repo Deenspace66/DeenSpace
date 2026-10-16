@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DeenSpace - Taleem-e-Quran</title>
+<link rel="stylesheet" href="style.css">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://meet.jit.si/external_api.js"></script>
+</head>
+<body>
+<nav>
+  <div class="nav-brand">🌙 DeenSpace</div>
+  <div class="nav-links">
+    <button onclick="navigate('home')">Home</button>
+    <button onclick="navigate('classes')">Classes</button>
+    <button onclick="navigate('contact')">Contact Qari</button>
+    <button onclick="navigate('admin')" id="adminNav" style="display:none">👑 Admin</button>
+    <button onclick="logout()" id="logoutBtn" style="display:none">Logout</button>
+  </div>
+</nav>
+
+<section id="home" class="page active">
+  <div class="hero">
+    <h1>Assalamu Alaikum!</h1>
+    <p>Join Qari Saab's Online Quran Academy via WhatsApp link</p>
+    <div class="whatsapp-box">
+      <h3>🚀 Quick Join (From WhatsApp Link)</h3>
+      <p>Just enter your name, you are in!</p>
+      <input id="quickName" placeholder="Your Full Name">
+      <input id="quickPhone" placeholder="WhatsApp Number">
+      <select id="quickRole"><option value="student">I am Student</option><option value="parent">I am Parent</option></select>
+      <button onclick="quickJoin()">Join Class Now →</button>
+      <p class="hint">If you came from WhatsApp link, this is for you - no email needed!</p>
+    </div>
+  </div>
+
+  <div class="container">
+    <div class="card auth-card" id="authCard">
+      <div class="tabs"><button class="active" onclick="showTab('login')">Login</button><button onclick="showTab('register')">Register</button></div>
+      <form id="loginForm"><input type="email" id="loginEmail" placeholder="Email" required><input type="password" id="loginPassword" placeholder="Password" required><button type="submit">Login</button><p id="loginMsg" style="margin-top:8px;color:red"></p></form>
+      <form id="registerForm" style="display:none"><input type="text" id="regName" placeholder="Full Name" required><input type="email" id="regEmail" placeholder="Email" required><input type="tel" id="regPhone" placeholder="WhatsApp Number" required><input type="password" id="regPass" placeholder="Password (6+ chars)" required><input type="password" id="regConfirm" placeholder="Confirm Password" required><select id="regRole"><option value="student">Student</option><option value="teacher">Teacher (Needs Admin Approval)</option></select><button type="submit">Create Account</button><p id="regMsg" style="margin-top:8px;color:red"></p></form>
+    </div>
+
+    <div class="card dashboard" id="dashboard" style="display:none">
+      <h2>Welcome <span id="dashName"></span></h2>
+      <p>Role: <b id="dashRole"></b> | <span id="dashEmail"></span></p>
+      <div class="action-grid">
+        <button class="action-btn" onclick="navigate('classes')">📚 My Classes</button>
+        <button class="action-btn" onclick="navigate('classroom')">🎥 Join Live Class</button>
+        <button class="action-btn" onclick="navigate('contact')">📞 Contact Qari Saab</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="classes" class="page">
+  <div class="container">
+    <h2>📚 What Qari Saab Teaches</h2>
+    <div id="subjectsGrid" class="subject-grid"></div>
+    <h2 style="margin-top:30px">🗓️ Class Schedule</h2>
+    <div id="scheduleList"></div>
+  </div>
+</section>
+
+<section id="classroom" class="page">
+  <div class="classroom-header">
+    <h2 id="classroomTitle">Live Class - Full Screen Video</h2>
+    <button onclick="navigate('home')">Leave Class</button>
+  </div>
+  <div id="jitsiContainer" class="jitsi-box">
+    <div class="join-prompt" id="joinPrompt">
+      <h3>Select a class to join</h3>
+      <div id="classListForJoin"></div>
+    </div>
+  </div>
+  <div class="chat-box card">
+    <h4>💬 Class Chat</h4>
+    <div id="classChat"></div>
+    <input id="chatInput" placeholder="Type message..."><button onclick="sendChat()">Send</button>
+  </div>
+</section>
+
+<section id="contact" class="page">
+  <div class="container">
+    <div class="card">
+      <h2>📞 Contact Qari Saab</h2>
+      <div id="contactInfo"></div>
+      <a id="waLink" class="wa-btn" target="_blank">💬 Chat on WhatsApp</a>
+      <a id="callLink" class="call-btn">📞 Call Now</a>
+    </div>
+  </div>
+</section>
+
+<section id="admin" class="page">
+  <div class="container">
+    <h2>👑 Admin Panel</h2>
+    <div class="card"><h3>All Users</h3><div id="allUsersList"></div></div>
+  </div>
+</section>
+
+<script src="supabase-config.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
