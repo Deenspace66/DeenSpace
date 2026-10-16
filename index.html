@@ -1,69 +1,170 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
+<head><style>
+@font-face {
+  font-family: "Optimistic";
+  font-style: normal;
+  font-weight: 400 600;
+  font-display: swap;
+  src: url("/fonts/OptimisticAI_VF_Optimized.woff2") format("woff2");
+}
+@font-face {
+  font-family: "Optimistic Mono";
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("/fonts/OptimisticMono_W_TextRegular.woff2") format("woff2");
+}
+:where(html) {
+  font-family: "Optimistic", system-ui, sans-serif;
+}
+:where(code, pre, kbd, samp) {
+  font-family: "Optimistic Mono", ui-monospace, monospace;
+}
+</style>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>DeenSpace - Taleem-e-Quran Academy</title>
+<title>DeenSpace - Taleem-e-Quran</title>
 <link rel="stylesheet" href="style.css">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://meet.jit.si/external_api.js"></script>
 </head>
 <body>
-<div class="container">
-  <header>
-    <h1>🌙 DeenSpace</h1>
-    <p>Taleem-e-Quran Academy</p>
-  </header>
+<nav>
+  <div class="nav-brand">🌙 DeenSpace</div>
+  <div class="nav-links">
+    <button onclick="navigate('home')">Home</button>
+    <button onclick="navigate('classes')">Classes</button>
+    <button onclick="navigate('contact')">Contact Qari</button>
+    <button onclick="navigate('admin')" id="adminNav" style="display:none">👑 Admin</button>
+    <button onclick="logout()" id="logoutBtn" style="display:none">Logout</button>
+  </div>
+</nav>
 
-  <div id="auth-section" class="card">
-    <div class="tabs">
-      <button id="loginTab" class="active" onclick="showLogin()">Login</button>
-      <button id="registerTab" onclick="showRegister()">Register</button>
+<!-- HOME / AUTH -->
+<section id="home" class="page active">
+  <div class="hero">
+    <h1>Assalamu Alaikum!</h1>
+    <p id="heroSub">Join Qari Saab's Online Quran Academy via WhatsApp link</p>
+    <div class="whatsapp-box" id="whatsappJoinBox">
+      <h3>🚀 Quick Join (From WhatsApp Link)</h3>
+      <p>Just enter your name, you are in!</p>
+      <input id="quickName" placeholder="Your Full Name">
+      <input id="quickPhone" placeholder="WhatsApp Number">
+      <select id="quickRole"><option value="student">I am Student</option><option value="parent">I am Parent</option></select>
+      <button onclick="quickJoin()">Join Class Now →</button>
+      <p class="hint">If you came from WhatsApp link, this is for you - no email needed!</p>
     </div>
-
-    <!-- Login Form -->
-    <form id="loginForm">
-      <input type="email" id="loginEmail" placeholder="Email" required>
-      <input type="password" id="loginPassword" placeholder="Password" required>
-      <button type="submit">Login</button>
-      <p id="loginMessage"></p>
-    </form>
-
-    <!-- Register Form - FIXED -->
-    <form id="registerForm" style="display:none;">
-      <input type="text" id="registerName" placeholder="Full Name" required>
-      <input type="email" id="registerEmail" placeholder="Email" required>
-      <input type="password" id="registerPassword" placeholder="Password (min 6)" required>
-      <input type="password" id="registerConfirm" placeholder="Confirm Password" required>
-      <select id="registerRole" required>
-        <option value="">Select Role</option>
-        <option value="student">Student</option>
-        <option value="teacher">Teacher</option>
-        <option value="parent">Parent</option>
-      </select>
-      <button type="submit">Create Account</button>
-      <p id="registerMessage"></p>
-    </form>
   </div>
 
-  <div id="dashboard" class="card" style="display:none;">
-    <h2>Welcome <span id="userName"></span>!</h2>
-    <p>Email: <span id="userEmail"></span></p>
-    <p>Role: <span id="userRole"></span></p>
-    <button onclick="logout()">Logout</button>
-    
-    <div class="courses">
-      <h3>Our Courses</h3>
-      <div class="course-grid">
-        <div class="course">📖 Noorani Qaida</div>
-        <div class="course">📘 Nazra Quran</div>
-        <div class="course">📗 Hifz-e-Quran</div>
-        <div class="course">📙 Tajweed</div>
+  <div class="container">
+    <div class="card auth-card" id="authCard">
+      <div class="tabs"><button class="active" onclick="showTab('login')">Login</button><button onclick="showTab('register')">Register</button></div>
+      <form id="loginForm"><input type="email" id="loginEmail" placeholder="Email" required><input type="password" id="loginPassword" placeholder="Password" required><button type="submit">Login</button><p id="loginMsg"></p></form>
+      <form id="registerForm" style="display:none"><input type="text" id="regName" placeholder="Full Name" required><input type="email" id="regEmail" placeholder="Email" required><input type="tel" id="regPhone" placeholder="WhatsApp Number" required><input type="password" id="regPass" placeholder="Password" required><input type="password" id="regConfirm" placeholder="Confirm Password" required><select id="regRole"><option value="student">Student</option><option value="teacher">Teacher (Needs Admin Approval)</option></select><button type="submit">Create Account</button><p id="regMsg"></p></form>
+    </div>
+
+    <div class="card dashboard" id="dashboard" style="display:none">
+      <h2>Welcome <span id="dashName"></span> <span id="dashBadge"></span></h2>
+      <p>Role: <b id="dashRole"></b> | <span id="dashEmail"></span></p>
+      <div class="action-grid">
+        <button class="action-btn" onclick="navigate('classes')">📚 My Classes</button>
+        <button class="action-btn" onclick="navigate('classroom')">🎥 Join Live Class</button>
+        <button class="action-btn" onclick="navigate('contact')">📞 Contact Qari Saab</button>
       </div>
+      <div id="mySchedule"></div>
     </div>
   </div>
-</div>
+</section>
+
+<!-- CLASSES -->
+<section id="classes" class="page">
+  <div class="container">
+    <h2>📚 What Qari Saab Teaches <button id="editSubjectsBtn" style="display:none" onclick="editSubjects()">✏️ Edit</button></h2>
+    <div id="subjectsGrid" class="subject-grid"></div>
+    
+    <h2 style="margin-top:30px">🗓️ Class Schedule <button id="editScheduleBtn" style="display:none" onclick="showScheduleEditor()">✏️ Edit Schedule</button></h2>
+    <div id="scheduleList"></div>
+
+    <div id="scheduleEditor" class="card" style="display:none">
+      <h3>Edit Schedule (Qari Saab / Admin Only)</h3>
+      <input id="schedTitle" placeholder="Class Title e.g. Noorani Qaida Group A">
+      <input id="schedTime" type="datetime-local">
+      <input id="schedLink" placeholder="Jitsi Room Name e.g. DeenSpace-Qaida">
+      <button onclick="saveSchedule()">Save Schedule</button>
+      <button onclick="document.getElementById('scheduleEditor').style.display='none'">Cancel</button>
+    </div>
+  </div>
+</section>
+
+<!-- CLASSROOM - VIDEO CALL -->
+<section id="classroom" class="page">
+  <div class="classroom-header">
+    <h2 id="classroomTitle">Live Class - Full Screen Video</h2>
+    <div class="controls">
+      <span id="roleInfo"></span>
+      <button onclick="toggleScreenShare()" id="screenBtn">🖥️ Screen Share (Qari Only)</button>
+      <button onclick="navigate('home')">Leave Class</button>
+    </div>
+  </div>
+  <div id="jitsiContainer" class="jitsi-box">
+    <div class="join-prompt" id="joinPrompt">
+      <h3>Select a class to join</h3>
+      <div id="classListForJoin"></div>
+      <p>Qari Saab is moderator - Students mic is off by default, Qari can allow screen share.</p>
+    </div>
+  </div>
+  <div class="chat-box card">
+    <h4>💬 Class Chat + Notes</h4>
+    <div id="classChat"></div>
+    <input id="chatInput" placeholder="Type message... (for all students)"><button onclick="sendChat()">Send</button>
+  </div>
+</section>
+
+<!-- CONTACT -->
+<section id="contact" class="page">
+  <div class="container">
+    <div class="card">
+      <h2>📞 Contact Qari Saab <button id="editContactBtn" style="display:none" onclick="editContact()">✏️ Edit</button></h2>
+      <div id="contactInfo">
+        <p>Loading...</p>
+      </div>
+      <a id="waLink" class="wa-btn" target="_blank">💬 Chat on WhatsApp</a>
+      <a id="callLink" class="call-btn">📞 Call Now</a>
+    </div>
+    <div id="contactEditor" class="card" style="display:none">
+      <h3>Edit Contact (Admin / Qari Only)</h3>
+      <input id="cName" placeholder="Qari Name"><input id="cPhone" placeholder="Phone Number e.g. 0300..."><input id="cWhatsApp" placeholder="WhatsApp Number"><input id="cEmail" placeholder="Email"><textarea id="cAddress" placeholder="Address / Masjid Name"></textarea><textarea id="cBio" placeholder="About Qari Saab"></textarea><button onclick="saveContact()">Save Contact</button>
+    </div>
+  </div>
+</section>
+
+<!-- ADMIN PANEL -->
+<section id="admin" class="page">
+  <div class="container">
+    <h2>👑 Admin Panel - You are the Boss</h2>
+    <p>All new joins come here + Email sent to deenspace66@gmail.com</p>
+    
+    <div class="card">
+      <h3>👥 All Users (Student / Teacher Control)</h3>
+      <p>You ONLY can change who is Teacher and who is Student!</p>
+      <div id="allUsersList"></div>
+    </div>
+
+    <div class="card">
+      <h3>📚 Subjects - Add / Edit / Delete</h3>
+      <input id="newSubjectName" placeholder="New Subject e.g. Namaz"><input id="newSubjectDesc" placeholder="Description"><button onclick="addSubject()">Add Subject</button>
+      <div id="adminSubjects"></div>
+    </div>
+
+    <div class="card">
+      <h3>🔔 Recent Joins Log</h3>
+      <div id="joinLogs"></div>
+    </div>
+  </div>
+</section>
 
 <script src="supabase-config.js"></script>
 <script src="app.js"></script>
-</body>
+<script>(function(){var loc=location.href.replace(/#.*$/,"");var ATTR_NAMES=["data-product-id","data-productid","data-product_id","product-id","productid","product_id","data-source-entity-id","source-entity-id","source_entity_id","data-product","data-metadata","data-meta"];var DATASET_KEYS=["productId","productid","product_id","sourceEntityId","sourceentityid","source_entity_id","product","metadata","meta"];function readProductId(value){if(typeof value!=="string"||value.length===0)return null;if(/^[0-9]{6,}$/.test(value))return value;var match=value.match(/(?:product(?:_|-)?id|source(?:_|-)?entity(?:_|-)?id)["'=:\s]+([0-9]{6,})/i);return match?match[1]:null}function extractProductId(start){for(var node=start;node&&node!==document.body;node=node.parentElement){for(var i=0;i<ATTR_NAMES.length;i++){var attrValue=node.getAttribute&&node.getAttribute(ATTR_NAMES[i]);var attrProductId=readProductId(attrValue);if(attrProductId)return attrProductId}var dataset=node.dataset||null;if(dataset){for(var j=0;j<DATASET_KEYS.length;j++){var dataValue=dataset[DATASET_KEYS[j]];var dataProductId=readProductId(dataValue);if(dataProductId)return dataProductId}}}return null}function isInlineMediaSlotElement(node){return !!(node&&node.getAttribute&&node.getAttribute("data-clippy-inline-media-slot")!==null)}function findInlineMediaSlot(start){for(var node=start;node&&node!==document.body;node=node.parentElement){if(isInlineMediaSlotElement(node))return node}return null}function readInlineMediaUrl(node){if(!node)return null;return node.getAttribute&&((node.getAttribute("data-clippy-inline-media-url")||node.getAttribute("data-url")||node.getAttribute("data_url")))||node.href||null}function stripHash(url){return String(url).replace(/#.*$/,"")}function urlsMatch(a,b){if(!a||!b)return false;try{return stripHash(new URL(a,loc).href)===stripHash(new URL(b,loc).href)}catch(_){return stripHash(a)===stripHash(b)}}function isFirstPartyReelUrl(value){try{var url=new URL(value,loc);if(url.protocol!=="https:")return false;var host=url.hostname.toLowerCase();var supported=host==="instagram.com"||host.endsWith(".instagram.com")||host==="facebook.com"||host.endsWith(".facebook.com");return supported&&/\/reels?\//i.test(url.pathname)}catch(_){return false}}function isInlineMediaUrlClick(node,href){var slot=findInlineMediaSlot(node);if(!slot)return false;var slotUrl=readInlineMediaUrl(slot);if(slotUrl)return urlsMatch(href,slotUrl);return isFirstPartyReelUrl(href)}function findDataHref(start){for(var node=start;node&&node!==document.body;node=node.parentElement){if(node.getAttribute){var href=node.getAttribute("data-href")||node.getAttribute("data-url");if(href)return{href:href,node:node}}}return null}var nativeOpen=window.open;window.open=function(url){if(parent!==window&&typeof url==="string"&&/^https?:\/\//.test(url)){parent.postMessage({type:"ecto:usercontent-link-click",href:url},"*");return null}return nativeOpen?nativeOpen.apply(window,arguments):null};document.addEventListener("click",function(e){var target=e.target instanceof Element?e.target:null;if(!target)return;if(parent===window)return;var a=target.closest?target.closest("a[href]"):null;if(a&&a.href&&/^https?:\/\//.test(a.href)&&a.href.replace(/#.*$/,"")!==loc){if(isInlineMediaUrlClick(a,a.href))return;var productId=extractProductId(target)||extractProductId(a);if(productId){e.preventDefault();parent.postMessage({type:"ecto-artifact-link-click",productId:productId},"*");return}e.preventDefault();parent.postMessage({type:"ecto:usercontent-link-click",href:a.href},"*");return}var dataHref=findDataHref(target);if(dataHref&&/^https?:\/\//.test(dataHref.href)&&dataHref.href.replace(/#.*$/,"")!==loc){if(isInlineMediaUrlClick(dataHref.node,dataHref.href))return;e.preventDefault();parent.postMessage({type:"ecto:usercontent-link-click",href:dataHref.href},"*")}},true)})();</script><script>(function(){var FOCUS_TYPE="ecto:artifact-focus-request";var CLOSE_TYPE="ecto:artifact-close-request";function focusArtifactDocument(){var body=document.body;if(!body)return;try{window.focus();}catch(e){}if(!body.hasAttribute("tabindex"))body.setAttribute("tabindex","-1");try{body.focus({preventScroll:true});}catch(e){try{body.focus();}catch(e2){}}}window.addEventListener("message",function(event){if(event.source!==window.parent)return;var data=event.data;if(!data||typeof data!=="object"||data.type!==FOCUS_TYPE)return;if(document.readyState==="loading"){document.addEventListener("DOMContentLoaded",focusArtifactDocument,{once:true});return;}focusArtifactDocument();});window.addEventListener("keydown",function(event){if(event.key!=="Escape")return;window.setTimeout(function(){if(event.defaultPrevented)return;window.parent.postMessage({type:CLOSE_TYPE},"*");},0);});})();</script></body>
 </html>
