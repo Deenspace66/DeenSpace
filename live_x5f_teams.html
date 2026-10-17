@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DeenSpace - Teams</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<link href="https://fonts.googleapis.com/css2?family=Segoe+UI:wght@400;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<script src="https://meet.jit.si/external_api.js"></script>
+<style>
+*{font-family:'Segoe UI',Inter,sans-serif}
+.teams-purple{color:#6264a7}
+.bg-teams-purple{background:#6264a7}
+.bg-teams-hover:hover{background:#5b5fc7}
+.teams-shadow{box-shadow:0 2px 4px rgba(0,0,0,0.14)}
+::-webkit-scrollbar{width:6px}
+::-webkit-scrollbar-thumb{background:#ccc;border-radius:10px}
+</style>
+</head>
+<body class="bg-[#f5f5f5] text-[#242424] h-screen flex flex-col overflow-hidden">
+
+<!-- TOP BAR - Like Teams -->
+<header class="h-[48px] bg-[#6264a7] flex items-center px-3 gap-3 text-white shrink-0">
+  <div class="flex items-center gap-2 font-bold text-[16px]">🌙 DeenSpace</div>
+  <div class="flex-1 max-w-[600px] mx-auto">
+    <div class="bg-white/20 rounded-[4px] px-3 py-[6px] flex items-center gap-2 text-[14px] text-white/80">
+      <span>🔍</span> Search in DeenSpace
+    </div>
+  </div>
+  <div class="flex items-center gap-3">
+    <div class="w-8 h-8 bg-white/20 rounded-full flex items-center justify-center text-sm">T</div>
+  </div>
+</header>
+
+<div class="flex flex-1 overflow-hidden">
+  <!-- LEFT NAV - Teams style -->
+  <nav class="w-[68px] bg-[#ebebeb] flex flex-col items-center py-3 gap-1 shrink-0 border-r border-[#e1e1e1]">
+    <button class="w-[48px] h-[56px] flex flex-col items-center justify-center gap-1 rounded-[4px] bg-white teams-shadow">
+      <span class="text-[20px]">💬</span><span class="text-[10px] font-medium">Chat</span>
+    </button>
+    <button class="w-[48px] h-[56px] flex flex-col items-center justify-center gap-1 rounded-[4px] bg-[#6264a7] text-white">
+      <span class="text-[20px]">👥</span><span class="text-[10px] font-medium">Teams</span>
+    </button>
+    <button class="w-[48px] h-[56px] flex flex-col items-center justify-center gap-1 rounded-[4px] hover:bg-white">
+      <span class="text-[20px]">📅</span><span class="text-[10px]">Calendar</span>
+    </button>
+    <button class="w-[48px] h-[56px] flex flex-col items-center justify-center gap-1 rounded-[4px] hover:bg-white">
+      <span class="text-[20px]">📖</span><span class="text-[10px]">Quran</span>
+    </button>
+    <div class="mt-auto">
+      <a href="index.html" class="w-[48px] h-[48px] flex flex-col items-center justify-center gap-1 rounded-full bg-white teams-shadow">
+        <span class="text-[16px]">🏠</span>
+      </a>
+    </div>
+  </nav>
+
+  <!-- MIDDLE - Teams List -->
+  <aside class="w-[300px] bg-white border-r border-[#e1e1e1] flex flex-col shrink-0 hidden md:flex">
+    <div class="h-[56px] px-4 flex items-center justify-between border-b border-[#e1e1e1]">
+      <h2 class="font-bold text-[16px]">DeenSpace Academy</h2>
+      <button class="w-6 h-6 bg-[#f5f5f5] rounded">+</button>
+    </div>
+    <div class="p-3">
+      <div class="text-[12px] font-semibold text-[#616161] uppercase tracking-wide mb-2">Your teams</div>
+      
+      <div class="bg-[#f5f5f5] rounded-[4px] p-2 mb-1">
+        <div class="flex items-center gap-2 font-semibold text-[14px]">🕌 Hifz-e-Quran</div>
+        <div class="ml-6 mt-2 space-y-1">
+          <div class="flex items-center gap-2 text-[13px] px-2 py-1 bg-[#6264a7]/10 text-[#6264a7] rounded font-medium border-l-[3px] border-[#6264a7]">General - Live Class</div>
+          <div class="flex items-center gap-2 text-[13px] px-2 py-1 text-[#616161] hover:bg-[#f5f5f5] rounded">📖 Sabaq Discussion</div>
+          <div class="flex items-center gap-2 text-[13px] px-2 py-1 text-[#616161] hover:bg-[#f5f5f5] rounded">📝 Assignments</div>
+        </div>
+      </div>
+
+      <div class="mt-4">
+        <div class="text-[12px] font-semibold text-[#616161] uppercase mb-2">Upcoming</div>
+        <div class="bg-white border border-[#e1e1e1] rounded-[4px] p-3">
+          <div class="text-[13px] font-semibold">Today's Sabaq</div>
+          <div class="text-[12px] text-[#616161] mt-1" id="sabaqText">Surah Baqarah - Ayat 10-20</div>
+          <div class="text-[12px] text-[#616161]">5:00 PM - Gujranwala</div>
+          <div class="mt-2 flex items-center gap-1 text-[11px] text-green-600 font-medium"><span class="w-2 h-2 bg-green-500 rounded-full inline-block"></span> <span id="onlineCount">1 online</span></div>
+        </div>
+      </div>
+    </div>
+  </aside>
+
+  <!-- MAIN CONTENT - Teams Meeting Style -->
+  <main class="flex-1 flex flex-col bg-[#f5f5f5] overflow-hidden relative">
+
+    <!-- MEETING HEADER -->
+    <div class="h-[56px] bg-white border-b border-[#e1e1e1] px-4 flex items-center justify-between shrink-0">
+      <div class="flex items-center gap-3">
+        <h2 class="font-bold text-[16px]" id="meetingTitle">Hifz-e-Quran with Qari Saab</h2>
+        <span id="liveBadge" class="hidden bg-[#d13438] text-white text-[11px] px-2 py-[2px] rounded-[2px] font-bold">● LIVE</span>
+        <span id="meetingTime" class="text-[12px] text-[#616161]">00:00</span>
+      </div>
+      <div class="flex items-center gap-2">
+        <button class="text-[13px] px-3 py-1 bg-[#f5f5f5] rounded-[4px] border">👥 <span id="participantCount">1</span></button>
+        <button onclick="toggleChat()" class="text-[13px] px-3 py-1 bg-[#f5f5f5] rounded-[4px] border">💬 Chat</button>
+      </div>
+    </div>
+
+    <!-- VIDEO AREA -->
+    <div class="flex-1 relative bg-[#201f1f] flex items-center justify-center overflow-hidden" id="videoArea">
+
+      <!-- PRE-JOIN SCREEN - Like Teams -->
+      <div id="preJoinScreen" class="w-full max-w-[900px] bg-white rounded-[8px] teams-shadow p-8 m-4">
+        <div class="flex flex-col lg:flex-row gap-8">
+          <!-- Camera Preview -->
+          <div class="flex-1">
+            <div class="bg-[#201f1f] rounded-[8px] aspect-video flex items-center justify-center relative overflow-hidden">
+              <video id="previewVideo" autoplay muted playsinline class="w-full h-full object-cover hidden"></video>
+              <div id="previewPlaceholder" class="text-center text-white">
+                <div class="w-20 h-20 bg-[#6264a7] rounded-full flex items-center justify-center text-2xl mx-auto mb-3">T</div>
+                <p class="text-[14px]">Camera is off</p>
+              </div>
+              <div class="absolute bottom-3 left-3 right-3 flex justify-center gap-2">
+                <button id="previewMicBtn" onclick="togglePreviewMic()" class="w-9 h-9 bg-[#2d2c2c] text-white rounded-full flex items-center justify-center">🎙️</button>
+                <button id="previewCamBtn" onclick="togglePreviewCam()" class="w-9 h-9 bg-[#2d2c2c] text-white rounded-full flex items-center justify-center">📹</button>
+              </div>
+            </div>
+          </div>
+          <!-- Join Options -->
+          <div class="flex-1 flex flex-col justify-center">
+            <h3 class="text-[20px] font-bold mb-1">Ready to join?</h3>
+            <p class="text-[14px] text-[#616161] mb-6">Set up your audio and video before joining Hifz class</p>
+            
+            <div class="space-y-3 mb-6">
+              <div class="flex items-center justify-between bg-[#f5f5f5] rounded-[4px] p-3">
+                <span class="text-[13px] font-medium flex items-center gap-2">🎙️ Microphone <span id="micStatus" class="text-green-600 text-[11px]">On</span></span>
+                <button onclick="togglePreviewMic()" class="text-[12px] px-2 py-1 bg-white border rounded">Toggle</button>
+              </div>
+              <div class="flex items-center justify-between bg-[#f5f5f5] rounded-[4px] p-3">
+                <span class="text-[13px] font-medium flex items-center gap-2">📹 Camera <span id="camStatus" class="text-[#616161] text-[11px]">Off</span></span>
+                <button onclick="togglePreviewCam()" class="text-[12px] px-2 py-1 bg-white border rounded">Toggle</button>
+              </div>
+            </div>
+
+            <!-- QARI CONTROLS - ONLY FOR ADMIN -->
+            <div id="qariControls" class="border border-[#6264a7]/30 bg-[#6264a7]/5 rounded-[8px] p-4 mb-4">
+              <p class="text-[12px] font-bold text-[#6264a7] uppercase mb-2">👑 Qari Saab Controls</p>
+              <p class="text-[12px] text-[#616161] mb-3">Create class for students - they join automatically</p>
+              <div class="grid grid-cols-2 gap-2">
+                <button id="videoClassBtn" onclick="createClass('video')" class="bg-[#6264a7] hover:bg-[#5b5fc7] text-white text-[14px] font-semibold py-[10px] px-4 rounded-[4px] flex items-center justify-center gap-2">
+                  <span>📹</span> Join as Video
+                </button>
+                <button id="voiceClassBtn" onclick="createClass('voice')" class="bg-white border border-[#e1e1e1] hover:bg-[#f5f5f5] text-[#242424] text-[14px] font-semibold py-[10px] px-4 rounded-[4px] flex items-center justify-center gap-2">
+                  <span>🎙️</span> Join as Audio
+                </button>
+              </div>
+              <button onclick="endClass()" class="mt-2 w-full bg-[#d13438] hover:bg-[#b92d32] text-white text-[13px] font-semibold py-2 rounded-[4px] hidden" id="endBtn">🔴 End meeting for all</button>
+            </div>
+
+            <button id="studentJoinBtn" onclick="joinAsStudent()" class="w-full bg-[#6264a7] hover:bg-[#5b5fc7] text-white text-[14px] font-semibold py-[12px] rounded-[4px]">Join now</button>
+            <p class="text-[11px] text-[#616161] text-center mt-3">1 participant waiting - Hifz class starts at 5:00 PM</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- LIVE MEETING -->
+      <div id="liveMeeting" class="hidden w-full h-full">
+        <div id="jitsiContainer" class="w-full h-full"></div>
+      </div>
+    </div>
+
+    <!-- BOTTOM TOOLBAR - Teams style -->
+    <div id="meetingToolbar" class="hidden h-[64px] bg-[#201f1f] flex items-center justify-center gap-2 px-4 shrink-0">
+      <button onclick="toggleMic()" id="micBtn" class="w-10 h-10 bg-[#2d2c2c] hover:bg-[#3b3a39] text-white rounded-full flex items-center justify-center">🎙️</button>
+      <button onclick="toggleCam()" id="camBtn" class="w-10 h-10 bg-[#2d2c2c] hover:bg-[#3b3a39] text-white rounded-full flex items-center justify-center">📹</button>
+      <button class="w-10 h-10 bg-[#2d2c2c] hover:bg-[#3b3a39] text-white rounded-full">💬</button>
+      <button class="w-10 h-10 bg-[#2d2c2c] hover:bg-[#3b3a39] text-white rounded-full">🖐️</button>
+      <button class="w-10 h-10 bg-[#2d2c2c] hover:bg-[#3b3a39] text-white rounded-full">↗️</button>
+      <div class="w-[1px] h-6 bg-[#3b3a39] mx-2"></div>
+      <button onclick="leaveMeeting()" class="px-5 h-10 bg-[#d13438] hover:bg-[#b92d32] text-white rounded-[4px] text-[14px] font-semibold">Leave</button>
+    </div>
+  </main>
+
+  <!-- RIGHT CHAT PANEL - Teams style -->
+  <aside id="chatPanel" class="w-[320px] bg-white border-l border-[#e1e1e1] flex-col hidden lg:flex shrink-0">
+    <div class="h-[56px] px-4 flex items-center justify-between border-b border-[#e1e1e1]">
+      <h3 class="font-bold text-[14px]">Meeting chat</h3>
+      <button onclick="toggleChat()" class="w-6 h-6 hover:bg-[#f5f5f5] rounded">✕</button>
+    </div>
+    <div id="chatMessages" class="flex-1 overflow-y-auto p-4 space-y-3">
+      <div class="flex gap-2">
+        <div class="w-8 h-8 bg-[#6264a7] rounded-full flex items-center justify-center text-white text-[12px] font-bold">Q</div>
+        <div><div class="text-[12px] font-semibold">Qari Saab <span class="text-[#616161] font-normal">5:00 PM</span></div><div class="text-[13px] bg-[#f5f5f5] rounded-[4px] px-3 py-2 mt-1">Assalamu Alaikum! Click Join as Video to start Hifz class inshaAllah 📖</div></div>
+      </div>
+    </div>
+    <div class="p-3 border-t border-[#e1e1e1]">
+      <div class="border border-[#e1e1e1] rounded-[4px] flex items-end p-2 gap-2">
+        <textarea id="chatInput" placeholder="Type a message" class="flex-1 resize-none text-[13px] outline-none max-h-[80px]" rows="1"></textarea>
+        <button onclick="sendChat()" class="text-[#6264a7]">➤</button>
+      </div>
+    </div>
+  </aside>
+</div>
+
+<script>
+// Supabase - Your keys
+const SUPABASE_URL = 'https://qipcemraijvvbgrjwntx.supabase.co';
+const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.[STRIPPED 127 bytes].dNTrZBJ4cEvWE8Pw_42CGMu1TgAFUqtLbYoD3gK3akI';
+const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+let jitsiApi = null;
+let previewStream = null;
+let isMicOn = true;
+let isCamOn = false;
+let currentRoom = '';
+let liveClassId = null;
+
+async function initPreview(){
+  try{
+    previewStream = await navigator.mediaDevices.getUserMedia({audio:true, video:true});
+    document.getElementById('previewVideo').srcObject = previewStream;
+    isCamOn = true;
+    updatePreviewUI();
+  }catch(e){ console.log('No cam/mic'); }
+}
+function updatePreviewUI(){
+  const video = document.getElementById('previewVideo');
+  const placeholder = document.getElementById('previewPlaceholder');
+  const camStatus = document.getElementById('camStatus');
+  const micStatus = document.getElementById('micStatus');
+  if(isCamOn){ video.classList.remove('hidden'); placeholder.classList.add('hidden'); camStatus.textContent='On'; camStatus.className='text-green-600 text-[11px]'; }
+  else{ video.classList.add('hidden'); placeholder.classList.remove('hidden'); camStatus.textContent='Off'; camStatus.className='text-[#616161] text-[11px]'; }
+  micStatus.textContent = isMicOn ? 'On' : 'Off';
+  micStatus.className = isMicOn ? 'text-green-600 text-[11px]' : 'text-[#d13438] text-[11px]';
+}
+function togglePreviewMic(){ isMicOn=!isMicOn; if(previewStream) previewStream.getAudioTracks().forEach(t=>t.enabled=isMicOn); updatePreviewUI(); }
+function togglePreviewCam(){ isCamOn=!isCamOn; if(previewStream) previewStream.getVideoTracks().forEach(t=>t.enabled=isCamOn); updatePreviewUI(); }
+
+async function createClass(type){
+  const btn = type==='video' ? document.getElementById('videoClassBtn') : document.getElementById('voiceClassBtn');
+  const original = btn.innerHTML;
+  btn.innerHTML = '⏳ Creating...';
+  btn.disabled = true;
+
+  try{
+    const roomName = `DeenSpace-${type}-${Date.now()}`;
+    currentRoom = roomName;
+    
+    // Try Supabase but don't fail if table missing
+    try{
+      const { data } = await supabase.from('live_classes').insert({ title: `${type} Class`, is_live: true, meet_link: roomName }).select().single();
+      if(data) liveClassId = data.id;
+    }catch(e){ console.log('Supabase optional', e.message); }
+
+    startJitsi(roomName, type);
+  }catch(e){
+    alert('Failed: '+e.message);
+    btn.innerHTML = original;
+    btn.disabled = false;
+  }
+}
+
+function joinAsStudent(){
+  // Student joins existing live or creates temp room if no live
+  if(currentRoom) startJitsi(currentRoom, 'video');
+  else {
+    // Check supabase for live room
+    supabase.from('live_classes').select('*').eq('is_live', true).order('created_at',{ascending:false}).limit(1).single().then(({data})=>{
+      if(data && data.meet_link){ currentRoom = data.meet_link; startJitsi(data.meet_link, 'video'); }
+      else{ alert('No live class now. Qari Saab will start at 5:00 PM'); }
+    });
+  }
+}
+
+function startJitsi(roomName, type){
+  document.getElementById('preJoinScreen').classList.add('hidden');
+  document.getElementById('liveMeeting').classList.remove('hidden');
+  document.getElementById('meetingToolbar').classList.remove('hidden');
+  document.getElementById('meetingToolbar').classList.add('flex');
+  document.getElementById('liveBadge').classList.remove('hidden');
+  document.getElementById('endBtn').classList.remove('hidden');
+  
+  if(previewStream){ previewStream.getTracks().forEach(t=>t.stop()); }
+
+  const container = document.getElementById('jitsiContainer');
+  container.innerHTML = '';
+  
+  const options = {
+    roomName: roomName,
+    width: '100%',
+    height: '100%',
+    parentNode: container,
+    configOverwrite: {
+      startWithAudioMuted: !isMicOn,
+      startWithVideoMuted: type==='voice' || !isCamOn,
+      prejoinPageEnabled: false,
+    },
+    interfaceConfigOverwrite: {
+      SHOW_JITSI_WATERMARK: false,
+      TOOLBAR_BUTTONS: []
+    },
+    userInfo: { displayName: localStorage.getItem('deenspace_name') || 'Tamoor' }
+  };
+
+  jitsiApi = new JitsiMeetExternalAPI('meet.jit.si', options);
+  
+  jitsiApi.addListener('videoConferenceJoined', ()=>{ console.log('Joined!'); });
+}
+
+function leaveMeeting(){
+  if(jitsiApi) jitsiApi.dispose();
+  document.getElementById('liveMeeting').classList.add('hidden');
+  document.getElementById('meetingToolbar').classList.add('hidden');
+  document.getElementById('preJoinScreen').classList.remove('hidden');
+  document.getElementById('liveBadge').classList.add('hidden');
+  initPreview();
+}
+async function endClass(){
+  try{ if(liveClassId) await supabase.from('live_classes').update({is_live:false}).eq('id', liveClassId); }catch(e){}
+  leaveMeeting();
+}
+function toggleMic(){ isMicOn=!isMicOn; if(jitsiApi) jitsiApi.executeCommand('toggleAudio'); document.getElementById('micBtn').style.background = isMicOn ? '#2d2c2c' : '#d13438'; }
+function toggleCam(){ isCamOn=!isCamOn; if(jitsiApi) jitsiApi.executeCommand('toggleVideo'); document.getElementById('camBtn').style.background = isCamOn ? '#2d2c2c' : '#d13438'; }
+function toggleChat(){ const p=document.getElementById('chatPanel'); p.classList.toggle('hidden'); p.classList.toggle('flex'); }
+function sendChat(){
+  const input=document.getElementById('chatInput');
+  if(!input.value.trim()) return;
+  const box=document.getElementById('chatMessages');
+  box.innerHTML += `<div class="flex gap-2"><div class="w-8 h-8 bg-[#e1e1e1] rounded-full flex items-center justify-center text-[12px] font-bold">T</div><div><div class="text-[12px] font-semibold">You <span class="text-[#616161] font-normal">now</span></div><div class="text-[13px] bg-[#f5f5f5] rounded-[4px] px-3 py-2 mt-1">${input.value}</div></div></div>`;
+  input.value=''; box.scrollTop=box.scrollHeight;
+}
+
+let seconds=0; setInterval(()=>{ seconds++; const m=Math.floor(seconds/60).toString().padStart(2,'0'); const s=(seconds%60).toString().padStart(2,'0'); const el=document.getElementById('meetingTime'); if(el && document.getElementById('liveMeeting').classList.contains('hidden')===false) el.textContent=`${m}:${s}`; },1000);
+
+initPreview();
+
+// Auto load live class
+supabase.from('live_classes').select('*').eq('is_live', true).order('created_at',{ascending:false}).limit(1).single().then(({data})=>{ if(data){ currentRoom=data.meet_link; liveClassId=data.id; } });
+</script>
+</body>
+</html>
